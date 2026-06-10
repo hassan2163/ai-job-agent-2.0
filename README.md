@@ -1,314 +1,210 @@
-# AI Job Application Assistant
+# AI Job Agent 2.0
 
-A full-stack AI-powered job application assistant that helps job seekers analyze job descriptions, evaluate resume fit, and generate tailored ATS-style resume content, cover letters, and interview preparation guidance.
-
-The application uses a React/Vite frontend, Node.js/Express backend, and Google Gemini API to provide job-fit analysis, application recommendations, resume tailoring, and career preparation support.
-
----
-
-## Live Demo
-
-**Frontend:**  
-https://hassan2163.github.io/AI-Job-Application-Assistant/
-
-**Backend:**  
-Hosted on Render
-
----
-
-## Screenshots
-
-### Home / Landing Page
-
-![Home / Landing Page](screenshots/home-page.png)
-
-### Job Description Analysis
-
-![Job Description Analysis](screenshots/job-analysis.png)
-
-### Tailored Resume Output
-
-![Tailored Resume Output](screenshots/tailored-resume.png)
-
-### Cover Letter Output
-
-![Cover Letter Output](screenshots/cover-letter.png)
-
-### Interview Preparation Output
-
-![Interview Preparation Output](screenshots/interview-prep.png)
-
----
-
-## Features
-
-- Analyze job descriptions against a candidate profile or resume
-- Generate job match score and fit analysis
-- Provide Apply / Apply with Caution / Skip recommendations
-- Generate ATS-style tailored resume content
-- Create concise cover letters
-- Generate interview preparation guidance
-- Identify strengths, gaps, and transferable skills
-- Export generated content to PDF or DOCX
-- Secure Gemini API integration through backend
-- Deployed frontend using GitHub Pages
-- Deployed backend using Render
-
----
-
-## Tech Stack
-
-### Frontend
-
-- React
-- Vite
-- JavaScript
-- HTML/CSS
-- GitHub Pages
-
-### Backend
-
-- Node.js
-- Express.js
-- Google Gemini API
-- Render
-
-### Other Tools
-
-- GitHub Actions
-- CORS
-- Helmet
-- Rate limiting
-- File upload handling
-- PDF/DOCX export
-
----
-
-## Project Structure
-
-```txt
-AI-Job-Application-Assistant/
-|
-|-- frontend/
-|   |-- src/
-|   |-- public/
-|   |-- package.json
-|   |-- vite.config.js
-|   |-- .env.example
-|   `-- .env.production.example
-|
-|-- Backend/
-|   |-- app.js
-|   |-- package.json
-|   |-- .env.example
-|   `-- other backend files
-|
-|-- screenshots/
-|   |-- home-page.png
-|   |-- job-analysis.png
-|   |-- tailored-resume.png
-|   |-- cover-letter.png
-|   `-- interview-prep.png
-|
-|-- .github/
-|   `-- workflows/
-|
-|-- .gitignore
-|-- render.yaml
-`-- README.md
-```
+A full-stack, multi-user SaaS platform that automates the entire job application pipeline — from scraping live job listings to generating AI-tailored resumes and cover letters, ready to download and apply.
 
 ---
 
 ## How It Works
 
-1. User enters or uploads resume/profile information.
-2. User pastes a target job description.
-3. Frontend sends the request to the Express backend.
-4. Backend securely calls the Gemini API.
-5. Gemini analyzes the resume against the job description.
-6. The app returns:
-   - Match score
-   - Application recommendation
-   - Resume improvement suggestions
-   - Tailored resume content
-   - Cover letter
-   - Interview preparation guidance
+1. **Set up your profile** — paste your resume, add target roles and locations, set a minimum match score
+2. **Run the pipeline** — the agent scrapes LinkedIn, Indeed, and Glassdoor for fresh listings
+3. **AI scores each job** — Gemini analyzes your resume against every listing and assigns a match score with a detailed fit report
+4. **AI tailors your documents** — qualifying jobs get a custom resume and cover letter generated automatically
+5. **Review and apply** — open each application in the dashboard, read the AI analysis, download the resume/cover letter as PDF or Word, then apply directly on the company's site
+6. **Track status** — mark applications as Approved, Applied, or Skipped
 
 ---
 
-## AI Output Focus
+## Features
 
-The assistant is designed to generate practical and honest job application guidance. It focuses on:
-
-- Matching real resume experience with job requirements
-- Highlighting direct and transferable skills
-- Identifying missing or weak areas
-- Avoiding fabricated experience, fake tools, or false metrics
-- Creating ATS-friendly language
-- Helping users decide whether a job is worth applying to
-
----
-
-## Environment Variables
-
-Create a `.env.example` file inside the `Backend/` folder:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key_here
-FRONTEND_URL=https://your-github-username.github.io
-PORT=5000
-```
-
-For local development, create a real `.env` file inside the `Backend/` folder and add your actual Gemini API key.
-
-Do not commit the real `.env` file to GitHub.
+- **Automated scraping** — LinkedIn, Indeed, and Glassdoor scraped via Apify on demand or on a daily schedule
+- **AI scoring** — Gemini evaluates each job against your resume: match score, strengths, gaps, keywords, strategy
+- **ATS-optimized resume tailoring** — role-specific resume generated per job, preserving only real experience
+- **Cover letter generation** — concise, honest, first-person cover letters (100–160 words)
+- **Download as PDF or Word** — one-click download for both resume and cover letter
+- **Application dashboard** — review all applications, filter by status, search by title or company
+- **Per-user pipeline scheduler** — set a daily run time and timezone; the agent runs automatically
+- **Multi-user auth** — Supabase JWT authentication with Row Level Security; every user's data is isolated
+- **Profile completeness guard** — pipeline is blocked until resume and target roles are set
+- **Pipeline status polling** — live progress indicator (Scrape → Score → Tailor) while the pipeline runs
 
 ---
 
-## Frontend Environment Setup
+## Tech Stack
 
-For production, create a `.env.production` file inside the `frontend/` folder:
+| Layer | Technology |
+|---|---|
+| Frontend | TanStack Start, React, TypeScript, Tailwind CSS, shadcn/ui |
+| Backend | Node.js, Express 5 |
+| Database & Auth | Supabase (PostgreSQL + Auth + RLS) |
+| AI | Google Gemini 2.5 Flash (via `@google/genai`) |
+| Scraping | Apify (LinkedIn, Indeed, Glassdoor actors) |
+| Scheduling | node-cron (per-user daily scheduler) |
+| Document export | docx, pdfkit |
 
-```env
-VITE_API_URL=https://your-render-backend-url.onrender.com
+---
+
+## Project Structure
+
 ```
-
-Example:
-
-```env
-VITE_API_URL=https://your-backend-url.onrender.com
-```
-
-For local development, create a `.env` file inside the `frontend/` folder:
-
-```env
-VITE_API_URL=http://localhost:5000
+ai-job-agent-2.0/
+├── Backend/
+│   ├── app.js                  # Express app, CORS, rate limiting
+│   ├── scheduler/
+│   │   └── dailyRun.js         # Per-user cron scheduler
+│   ├── controllers/
+│   │   ├── agentController.js  # Pipeline trigger + status
+│   │   ├── dashboardController.js  # Applications CRUD + document download
+│   │   └── profileController.js
+│   ├── services/
+│   │   ├── scraperService.js   # Apify scraping + normalization
+│   │   ├── scoringService.js   # Gemini AI scoring
+│   │   ├── tailoringService.js # Resume + cover letter generation
+│   │   ├── aiSharedService.js  # Gemini prompts
+│   │   └── aiService.js        # Gemini client + retry logic
+│   ├── middleware/
+│   │   └── authMiddleware.js   # Supabase JWT verification
+│   ├── utils/
+│   │   └── batchRun.js         # Shared batched async runner
+│   └── supabase/
+│       └── migration.sql       # Full DB schema
+│
+└── Frontend/Career Navigator/
+    └── src/
+        ├── routes/
+        │   ├── index.tsx        # Landing page
+        │   ├── dashboard.tsx    # Application dashboard
+        │   ├── profile.tsx      # Profile + schedule setup
+        │   ├── login.tsx
+        │   └── signup.tsx
+        ├── components/dashboard/
+        │   ├── ApplicationCard.tsx
+        │   ├── ApplicationDrawer.tsx  # Resume, cover letter, analysis, downloads
+        │   └── StatsBar.tsx
+        └── lib/
+            ├── auth-context.tsx
+            ├── dashboard-api.ts
+            └── supabase.ts
 ```
 
 ---
 
 ## Local Development
 
-### 1. Clone the repository
+### Prerequisites
+
+- Node.js 18+
+- Supabase project (free tier works)
+- Apify account + API token
+- Google Gemini API key
+
+### 1. Clone the repo
 
 ```bash
-git clone https://github.com/hassan2163/AI-Job-Application-Assistant.git
-cd AI-Job-Application-Assistant
+git clone https://github.com/hassan2163/ai-job-agent-2.0.git
+cd ai-job-agent-2.0
 ```
 
-### 2. Run the backend
+### 2. Backend setup
 
 ```bash
 cd Backend
 npm install
-npm start
 ```
 
-The backend should run locally on:
+Create `Backend/.env`:
 
-```txt
-http://localhost:5000
+```env
+GEMINI_API_KEY=your_gemini_api_key
+APIFY_API_TOKEN=your_apify_token
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+FRONTEND_URL=http://localhost:5173
+PORT=5000
+NODE_ENV=development
 ```
 
-### 3. Run the frontend
+Run the database migration in Supabase SQL editor:
+```
+Backend/supabase/migration.sql
+```
 
-Open a new terminal:
-
+Start the backend:
 ```bash
-cd frontend
-npm install
 npm run dev
 ```
 
-The frontend should run locally on:
+### 3. Frontend setup
 
-```txt
-http://localhost:5173
+```bash
+cd "Frontend/Career Navigator"
+npm install
 ```
+
+Create `Frontend/Career Navigator/.env`:
+
+```env
+VITE_API_URL=http://localhost:5000
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
+
+Start the frontend:
+```bash
+npm run dev
+```
+
+---
+
+## Environment Variables Reference
+
+### Backend
+
+| Variable | Description |
+|---|---|
+| `GEMINI_API_KEY` | Google Gemini API key |
+| `APIFY_API_TOKEN` | Apify platform token for scrapers |
+| `SUPABASE_URL` | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (backend only, never expose) |
+| `FRONTEND_URL` | Allowed CORS origin |
+| `PORT` | Server port (default: 5000) |
+| `NODE_ENV` | `development` or `production` |
+| `RATE_LIMIT_MAX` | Override rate limit (default: 500 dev / 100 prod) |
+
+### Frontend
+
+| Variable | Description |
+|---|---|
+| `VITE_API_URL` | Backend URL |
+| `VITE_SUPABASE_URL` | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Supabase anon key (public, safe to expose) |
+
+---
+
+## Security
+
+- Supabase service role key is backend-only — never sent to the frontend
+- All DB queries are scoped by `user_id` with Row Level Security enforced at the database level
+- JWT tokens are verified server-side on every request via `supabase.auth.getUser()`
+- Auth tokens are always refreshed before use (no stale token 401s)
+- `.env` files are git-ignored
+- CORS locked to known origins in production
+- Rate limiting on all `/api` routes
 
 ---
 
 ## Deployment
 
-### Frontend Deployment
+**Frontend** → [Vercel](https://vercel.com) (connect GitHub repo, set env vars, deploy)
 
-The frontend is deployed using GitHub Pages.
+**Backend** → [Railway](https://railway.app) (connect GitHub repo, set env vars, deploy from `Backend/` folder)
 
-Production frontend URL:
-
-```txt
-https://hassan2163.github.io/AI-Job-Application-Assistant/
-```
-
-### Backend Deployment
-
-The backend is deployed on Render as a web service.
-
-The backend can also be deployed to any Node-compatible hosting provider. After deployment, set the frontend environment variable to your hosted backend URL:
-
-```env
-VITE_API_URL=https://your-backend-url.onrender.com
-```
-
-Render configuration:
-
-```txt
-Root Directory: Backend
-Build Command: npm install
-Start Command: npm start
-```
-
-Required Render environment variables:
-
-```env
-GEMINI_API_KEY=your_real_gemini_api_key
-FRONTEND_URL=https://your-github-username.github.io
-```
-
----
-
-## Security Notes
-
-- Gemini API key is stored only on the backend.
-- Frontend does not expose secret keys.
-- Backend includes CORS configuration.
-- Backend uses rate limiting to reduce abuse.
-- Uploaded resume files are validated.
-- `.env` files are excluded from GitHub.
-- Production environment variables are managed through Render.
-
----
-
-## Future Improvements
-
-- Add user authentication
-- Save job application history
-- Add multiple resume profiles
-- Add advanced resume templates
-- Add LinkedIn message generator
-- Add recruiter outreach email generator
-- Add application tracker dashboard
-- Add Stripe payment integration
-- Add premium plan support
-- Add mobile/PWA support
-
----
-
-## Purpose of the Project
-
-This project was built as a practical AI-powered career assistant and portfolio project. It demonstrates full-stack development, AI API integration, frontend/backend deployment, prompt engineering, environment variable security, and product thinking around job search automation.
-
-The project also reflects a real-world use case: helping job seekers evaluate opportunities, tailor their applications, and prepare more confidently for the hiring process.
+After deploying, set `VITE_API_URL` in Vercel to your Railway backend URL, and set `FRONTEND_URL` in Railway to your Vercel frontend URL.
 
 ---
 
 ## Author
 
-Muhammad Hassan Khan
+**Muhammad Hassan Khan**
 
-**GitHub:**  
-https://github.com/hassan2163
-
-**Live Project:**  
-https://hassan2163.github.io/AI-Job-Application-Assistant/
+GitHub: [hassan2163](https://github.com/hassan2163)
