@@ -1,19 +1,14 @@
 const express = require("express");
 
-const analyzeRoutes = require("./analyzeRoutes");
-const tailorResumeRoutes = require("./tailorResumeRoutes");
-const coverLetterRoutes = require("./coverLetterRoutes");
-const interviewPrepRoutes = require("./interviewPrepRoutes");
-const jobAgentRoutes = require("./jobAgentsRoutes");
-
+const agentRoutes = require("./agentRoutes");
+const dashboardRoutes = require("./dashboardRoutes");
+const profileRoutes = require("./profileRoutes");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.use("/analyze", analyzeRoutes);
-router.use("/tailor-resume", tailorResumeRoutes);
-router.use("/cover-letter", coverLetterRoutes);
-router.use("/interview-prep", interviewPrepRoutes);
-router.use("/job-agent", jobAgentRoutes);
-// router.use("/generate-all", generateAllRoutes);
+router.use("/agent", authMiddleware, agentRoutes);
+router.use("/dashboard", authMiddleware, dashboardRoutes);
+router.use("/profile", profileRoutes); // auth applied inside profileRoutes
 
 module.exports = router;

@@ -1,5 +1,8 @@
 const { GoogleGenAI } = require("@google/genai");
 
+// Instantiate once at module load — reused across all requests
+let _client = null;
+
 const getGeminiClient = () => {
   if (!process.env.GEMINI_API_KEY) {
     throw new Error(
@@ -7,9 +10,11 @@ const getGeminiClient = () => {
     );
   }
 
-  return new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-  });
+  if (!_client) {
+    _client = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+  }
+
+  return _client;
 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -33,7 +38,7 @@ const generateContent = async (prompt, options = {}) => {
     model = "gemini-2.5-flash-lite",
     temperature = 0.2,
     topP = 0.8,
-    maxOutputTokens = 4000,
+    maxOutputTokens = 8000,
   } = options;
 
   for (let attempt = 1; attempt <= retries; attempt++) {

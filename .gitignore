@@ -49,3 +49,8 @@ coverage/
 # Uploads / generated files if any
 uploads/
 generated/
+# Frontend
+Frontend/Career Navigator/node_modules/
+Frontend/Career Navigator/dist/
+Frontend/Career Navigator/.env
+Frontend/Career Navigator/.env.*
