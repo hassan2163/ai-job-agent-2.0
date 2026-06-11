@@ -66,8 +66,30 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   return brandedErrorResponse();
 }
 
+type Env = {
+  ASSETS?: { fetch: (request: Request) => Promise<Response> };
+};
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    // In Cloudflare Pages advanced mode, the worker receives ALL requests.
+    // Static assets must be explicitly proxied via the ASSETS binding.
+    const assets = (env as Env).ASSETS;
+    if (assets) {
+      const url = new URL(request.url);
+      const isStaticAsset =
+        url.pathname.startsWith("/assets/") ||
+        /\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$/.test(url.pathname);
+      if (isStaticAsset) {
+        try {
+          const assetResponse = await assets.fetch(request);
+          if (assetResponse.status !== 404) return assetResponse;
+        } catch {
+          // fall through to SSR
+        }
+      }
+    }
+
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
