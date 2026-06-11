@@ -143,7 +143,15 @@ function Dashboard() {
       setRunStatus({ status: "running", jobs_scraped: 0, jobs_scored: 0, jobs_tailored: 0, error_message: null });
       toast.success("Pipeline started!");
     } catch (err: unknown) {
-      toast.error(`Failed to start pipeline: ${err instanceof Error ? err.message : "Unknown error"}`);
+      // 409 = pipeline already running — resume polling that run silently
+      const anyErr = err as { status?: number; body?: { runId?: string } };
+      if (anyErr?.status === 409 && anyErr?.body?.runId) {
+        setActiveRunId(anyErr.body.runId);
+        setRunStatus({ status: "running", jobs_scraped: 0, jobs_scored: 0, jobs_tailored: 0, error_message: null });
+        toast.info("Pipeline already running — tracking progress.");
+      } else {
+        toast.error(err instanceof Error ? err.message : "Failed to start pipeline.");
+      }
     } finally {
       setRunLoading(false);
     }

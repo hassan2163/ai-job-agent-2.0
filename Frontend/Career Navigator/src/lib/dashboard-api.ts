@@ -11,7 +11,17 @@ async function apiFetch<T>(path: string, options?: RequestInit, token?: string |
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");
-    throw new Error(`${res.status}: ${text || res.statusText}`);
+    let errorMsg = res.statusText || String(res.status);
+    try {
+      const json = JSON.parse(text);
+      errorMsg = json.error || json.message || errorMsg;
+      // Attach extra fields (e.g. runId on 409) for callers to inspect
+      const err = Object.assign(new Error(errorMsg), { status: res.status, body: json });
+      throw err;
+    } catch (parseErr) {
+      if (parseErr instanceof SyntaxError) throw new Error(text || errorMsg);
+      throw parseErr;
+    }
   }
   return res.json() as Promise<T>;
 }
