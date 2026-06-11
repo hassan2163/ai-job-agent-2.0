@@ -125,7 +125,9 @@ function ProfilePage() {
           setScheduleTimezone(data.schedule_timezone || "America/Chicago");
           setScheduleEnabled(data.schedule_enabled ?? false);
         })
-        .catch(() => toast.error("Failed to load profile."))
+        .catch(() => {
+          // Silently ignore — new users have no profile yet, just show the empty form
+        })
         .finally(() => setLoadingProfile(false));
     });
   }, [user]);

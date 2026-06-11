@@ -84,10 +84,10 @@ const updateProfile = async (req, res) => {
       }
     }
 
+    // upsert so it works even if the profile row doesn't exist yet (new users)
     const { data, error } = await supabase
       .from("user_profile")
-      .update(patch)
-      .eq("user_id", userId)
+      .upsert({ user_id: userId, ...patch }, { onConflict: "user_id" })
       .select()
       .single();
 
