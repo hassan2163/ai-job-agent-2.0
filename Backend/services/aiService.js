@@ -43,7 +43,7 @@ const generateContent = async (prompt, options = {}) => {
 
   for (let attempt = 1; attempt <= retries; attempt++) {
     try {
-      console.log(`Gemini request attempt ${attempt}/${retries}`);
+      if (attempt > 1) console.log(`Gemini retry attempt ${attempt}/${retries}`);
 
       const ai = getGeminiClient();
 

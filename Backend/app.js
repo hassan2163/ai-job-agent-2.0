@@ -49,11 +49,15 @@ const limiter = rateLimit({
 app.use("/api", limiter);
 app.use("/api", routes);
 
-app.get("/health", (req, res) => {
-  res.json({
-    success: true,
-    status: "Backend running"
-  });
+app.get("/health", async (req, res) => {
+  try {
+    const supabase = require("./config/supabase");
+    const { error } = await supabase.from("user_profile").select("user_id").limit(1);
+    if (error) throw new Error(error.message);
+    res.json({ success: true, status: "ok", db: "connected" });
+  } catch (err) {
+    res.status(503).json({ success: false, status: "degraded", db: "unreachable", error: err.message });
+  }
 });
 
 app.use((err, req, res, next) => {

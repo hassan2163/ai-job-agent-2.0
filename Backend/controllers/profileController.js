@@ -63,6 +63,11 @@ const updateProfile = async (req, res) => {
       return res.status(400).json({ success: false, error: "No valid fields to update." });
     }
 
+    // Validate resume_text length (max 20,000 chars ~ 5,000 tokens)
+    if (patch.resume_text !== undefined && patch.resume_text.length > 20000) {
+      return res.status(400).json({ success: false, error: "Resume text must be under 20,000 characters. Please trim your resume." });
+    }
+
     // Validate min_score range
     if (patch.min_score !== undefined) {
       const score = parseInt(patch.min_score, 10);

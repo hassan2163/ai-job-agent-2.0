@@ -71,6 +71,23 @@ const runPipeline = async (runId, userId) => {
 const triggerRun = async (req, res) => {
   try {
     const userId = req.user.id;
+
+    // Guard: prevent concurrent pipeline runs for the same user
+    const { data: activeRun } = await supabase
+      .from("search_runs")
+      .select("id, started_at")
+      .eq("user_id", userId)
+      .eq("status", "running")
+      .single();
+
+    if (activeRun) {
+      return res.status(409).json({
+        success: false,
+        error: "A pipeline is already running. Please wait for it to complete.",
+        runId: activeRun.id,
+      });
+    }
+
     const run = await createRun("manual", userId);
 
     runPipeline(run.id, userId).catch((err) =>
