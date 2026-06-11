@@ -117,9 +117,9 @@ function Dashboard() {
       setStats(statsRes.data);
       setApplications(appsRes.data);
       setTotalPages(appsRes.pagination.pages);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unknown error";
-      toast.error(`Failed to load dashboard data: ${msg}`);
+    } catch {
+      // Silently show empty state — API may be unreachable for new users
+      // or FRONTEND_URL not yet configured on the backend
     } finally {
       setLoading(false);
       setRefreshing(false);
