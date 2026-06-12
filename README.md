@@ -41,6 +41,8 @@ A full-stack, multi-user SaaS platform that automates the entire job application
 | Scraping | Apify (LinkedIn, Indeed, Glassdoor actors) |
 | Scheduling | node-cron (per-user daily scheduler) |
 | Document export | docx, pdfkit |
+| Frontend hosting | Cloudflare Pages (Workers SSR, advanced mode) |
+| Backend hosting | Railway |
 
 ---
 
@@ -195,11 +197,33 @@ npm run dev
 
 ## Deployment
 
-**Frontend** → [Vercel](https://vercel.com) (connect GitHub repo, set env vars, deploy)
+### Backend → Railway
 
-**Backend** → [Railway](https://railway.app) (connect GitHub repo, set env vars, deploy from `Backend/` folder)
+1. Connect your GitHub repo in Railway
+2. Set root directory to `Backend/`
+3. Add all backend environment variables (see table above)
+4. Set `FRONTEND_URL` to your Cloudflare Pages production URL (e.g. `https://ai-job-agent-2-0.pages.dev`)
+5. Railway auto-deploys on every push to `main`
 
-After deploying, set `VITE_API_URL` in Vercel to your Railway backend URL, and set `FRONTEND_URL` in Railway to your Vercel frontend URL.
+### Frontend → Cloudflare Pages
+
+1. Connect your GitHub repo in Cloudflare Pages
+2. Set build settings:
+   - **Framework preset:** None
+   - **Build command:** `cd "Frontend/Career Navigator" && npm install && npm run build`
+   - **Build output directory:** `Frontend/Career Navigator/dist/client`
+3. Add production environment variables — **these are baked in at build time**, so a redeploy is required after any change:
+
+   | Variable | Value |
+   |---|---|
+   | `VITE_SUPABASE_URL` | Your Supabase project URL |
+   | `VITE_SUPABASE_ANON_KEY` | Your Supabase anon public key |
+   | `VITE_API_URL` | Your Railway backend URL (no trailing slash) |
+
+4. Cloudflare Pages uses `_worker.js` (advanced mode) — the `wrangler.toml` and build script handle this automatically
+5. After deploying, use the **production URL** (e.g. `https://ai-job-agent-2-0.pages.dev`) — preview URLs have different origins and will be blocked by CORS
+
+> **Note:** If you add preview/branch deployment URLs, add them to `FRONTEND_URL` on Railway as comma-separated values: `https://ai-job-agent-2-0.pages.dev,https://preview-url.pages.dev`
 
 ---
 
