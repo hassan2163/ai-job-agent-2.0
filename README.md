@@ -1,8 +1,12 @@
-# AI Job Agent 2.0
+# JobFit AI — AI Job Agent 2.0
 
-A full-stack, multi-user SaaS platform that automates the entire job application pipeline — from scraping live job listings to generating AI-tailored resumes and cover letters, ready to download and apply.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-ai--job--agent--2--0.pages.dev-blue?style=flat-square)](https://ai-job-agent-2-0.pages.dev)
+[![Node.js](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express-green?style=flat-square)](https://nodejs.org)
+[![React](https://img.shields.io/badge/Frontend-React%20%2B%20TypeScript-61DAFB?style=flat-square)](https://react.dev)
+[![Supabase](https://img.shields.io/badge/Database-Supabase-3ECF8E?style=flat-square)](https://supabase.com)
+[![Gemini](https://img.shields.io/badge/AI-Gemini%202.5%20Flash-4285F4?style=flat-square)](https://ai.google.dev/gemini-api)
 
-**Live demo:** https://ai-job-agent-2-0.pages.dev
+> A full-stack, multi-user SaaS platform that automates the entire job application pipeline — from scraping live job listings to generating AI-tailored resumes and cover letters, ready to download and apply.
 
 ---
 
@@ -27,16 +31,18 @@ Job searching at scale is repetitive and time-consuming: manually checking Linke
 
 ## Features
 
-- **Automated scraping** — LinkedIn, Indeed, and Glassdoor scraped via Apify on demand or on a daily schedule
-- **AI scoring** — Gemini evaluates each job against your resume: match score, strengths, gaps, keywords, strategy
-- **ATS-optimized resume tailoring** — role-specific resume generated per job, preserving only real experience
-- **Cover letter generation** — concise, honest, first-person cover letters (100–160 words)
-- **Download as PDF or Word** — one-click download for both resume and cover letter
-- **Application dashboard** — review all applications, filter by status, search by title or company
-- **Per-user pipeline scheduler** — set a daily run time and timezone; the agent runs automatically
-- **Multi-user auth** — Supabase JWT authentication with Row Level Security; every user's data is isolated
-- **Profile completeness guard** — pipeline is blocked until resume and target roles are set
-- **Pipeline status polling** — live progress indicator (Scrape → Score → Tailor) while the pipeline runs
+| Feature | Details |
+|---|---|
+| **Automated scraping** | LinkedIn, Indeed, and Glassdoor scraped via Apify on demand or on a daily schedule |
+| **AI scoring** | Gemini evaluates each job against your resume: match score, strengths, gaps, keywords, strategy |
+| **ATS-optimized resume tailoring** | Role-specific resume generated per job, preserving only real experience |
+| **Cover letter generation** | Concise, honest, first-person cover letters (100–160 words) |
+| **PDF + Word export** | One-click download for both resume and cover letter |
+| **Application dashboard** | Review all applications, filter by status, search by title or company |
+| **Per-user scheduler** | Set a daily run time and timezone; the agent runs automatically |
+| **Multi-user auth** | Supabase JWT authentication with Row Level Security — every user's data is fully isolated |
+| **Pipeline status polling** | Live progress indicator (Scrape → Score → Tailor) while the pipeline runs |
+| **Profile completeness guard** | Pipeline is blocked until resume and target roles are configured |
 
 ---
 
@@ -47,7 +53,7 @@ Job searching at scale is repetitive and time-consuming: manually checking Linke
 | Frontend | TanStack Start, React, TypeScript, Tailwind CSS, shadcn/ui |
 | Backend | Node.js, Express 5 |
 | Database & Auth | Supabase (PostgreSQL + Auth + RLS) |
-| AI | Google Gemini 2.5 Flash (via `@google/genai`) |
+| AI | Google Gemini 2.5 Flash |
 | Scraping | Apify (LinkedIn, Indeed, Glassdoor actors) |
 | Scheduling | node-cron (per-user daily scheduler) |
 | Document export | docx, pdfkit |
@@ -56,37 +62,53 @@ Job searching at scale is repetitive and time-consuming: manually checking Linke
 
 ---
 
+## Architecture
+
+```
+User → Cloudflare Pages (SSR) → Railway (Express API)
+                                      ↓
+                              Supabase (PostgreSQL + Auth)
+                                      ↓
+                    ┌─────────────────────────────────┐
+                    │         Agent Pipeline           │
+                    │  Apify Scrape → Gemini Score     │
+                    │       → Gemini Tailor            │
+                    └─────────────────────────────────┘
+```
+
+---
+
 ## Project Structure
 
 ```
 ai-job-agent-2.0/
 ├── Backend/
-│   ├── app.js                  # Express app, CORS, rate limiting
+│   ├── app.js                      # Express app, CORS, rate limiting
 │   ├── scheduler/
-│   │   └── dailyRun.js         # Per-user cron scheduler
+│   │   └── dailyRun.js             # Per-user cron scheduler
 │   ├── controllers/
-│   │   ├── agentController.js  # Pipeline trigger + status
+│   │   ├── agentController.js      # Pipeline trigger + status
 │   │   ├── dashboardController.js  # Applications CRUD + document download
 │   │   └── profileController.js
 │   ├── services/
-│   │   ├── scraperService.js   # Apify scraping + normalization
-│   │   ├── scoringService.js   # Gemini AI scoring
-│   │   ├── tailoringService.js # Resume + cover letter generation
-│   │   ├── aiSharedService.js  # Gemini prompts
-│   │   └── aiService.js        # Gemini client + retry logic
+│   │   ├── scraperService.js       # Apify scraping + normalization
+│   │   ├── scoringService.js       # Gemini AI scoring
+│   │   ├── tailoringService.js     # Resume + cover letter generation
+│   │   ├── aiSharedService.js      # Gemini prompts
+│   │   └── aiService.js            # Gemini client + retry logic
 │   ├── middleware/
-│   │   └── authMiddleware.js   # Supabase JWT verification
+│   │   └── authMiddleware.js       # Supabase JWT verification
 │   ├── utils/
-│   │   └── batchRun.js         # Shared batched async runner
+│   │   └── batchRun.js             # Shared batched async runner
 │   └── supabase/
-│       └── migration.sql       # Full DB schema
+│       └── migration.sql           # Full DB schema
 │
 └── Frontend/Career Navigator/
     └── src/
         ├── routes/
-        │   ├── index.tsx        # Landing page
-        │   ├── dashboard.tsx    # Application dashboard
-        │   ├── profile.tsx      # Profile + schedule setup
+        │   ├── index.tsx            # Landing page
+        │   ├── dashboard.tsx        # Application dashboard
+        │   ├── profile.tsx          # Profile + schedule setup
         │   ├── login.tsx
         │   └── signup.tsx
         ├── components/dashboard/
@@ -136,12 +158,14 @@ PORT=5000
 NODE_ENV=development
 ```
 
-Run the database migration in Supabase SQL editor:
+Run the database migration in your Supabase SQL editor:
+
 ```
 Backend/supabase/migration.sql
 ```
 
 Start the backend:
+
 ```bash
 npm run dev
 ```
@@ -162,13 +186,14 @@ VITE_SUPABASE_ANON_KEY=your_anon_key
 ```
 
 Start the frontend:
+
 ```bash
 npm run dev
 ```
 
 ---
 
-## Environment Variables Reference
+## Environment Variables
 
 ### Backend
 
@@ -177,7 +202,7 @@ npm run dev
 | `GEMINI_API_KEY` | Google Gemini API key |
 | `APIFY_API_TOKEN` | Apify platform token for scrapers |
 | `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (backend only, never expose) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (backend only — never expose) |
 | `FRONTEND_URL` | Allowed CORS origin |
 | `PORT` | Server port (default: 5000) |
 | `NODE_ENV` | `development` or `production` |
@@ -193,47 +218,38 @@ npm run dev
 
 ---
 
-## Security
-
-- Supabase service role key is backend-only — never sent to the frontend
-- All DB queries are scoped by `user_id` with Row Level Security enforced at the database level
-- JWT tokens are verified server-side on every request via `supabase.auth.getUser()`
-- Auth tokens are always refreshed before use (no stale token 401s)
-- `.env` files are git-ignored
-- CORS locked to known origins in production
-- Rate limiting on all `/api` routes
-
----
-
 ## Deployment
 
 ### Backend → Railway
 
 1. Connect your GitHub repo in Railway
 2. Set root directory to `Backend/`
-3. Add all backend environment variables (see table above)
-4. Set `FRONTEND_URL` to your Cloudflare Pages production URL (e.g. `https://ai-job-agent-2-0.pages.dev`)
+3. Add all backend environment variables
+4. Set `FRONTEND_URL` to your Cloudflare Pages URL
 5. Railway auto-deploys on every push to `main`
 
 ### Frontend → Cloudflare Pages
 
-1. Connect your GitHub repo in Cloudflare Pages
-2. Set build settings:
-   - **Framework preset:** None
+1. Connect repo in Cloudflare Pages
+2. Build settings:
    - **Build command:** `cd "Frontend/Career Navigator" && npm install && npm run build`
-   - **Build output directory:** `Frontend/Career Navigator/dist/client`
-3. Add production environment variables — **these are baked in at build time**, so a redeploy is required after any change:
+   - **Output directory:** `Frontend/Career Navigator/dist/client`
+3. Add environment variables (baked in at build time — redeploy required after changes)
+4. Use the production URL only — preview URLs are blocked by CORS
 
-   | Variable | Value |
-   |---|---|
-   | `VITE_SUPABASE_URL` | Your Supabase project URL |
-   | `VITE_SUPABASE_ANON_KEY` | Your Supabase anon public key |
-   | `VITE_API_URL` | Your Railway backend URL (no trailing slash) |
+> To allow preview URLs, add them comma-separated to `FRONTEND_URL` on Railway.
 
-4. Cloudflare Pages uses `_worker.js` (advanced mode) — the `wrangler.toml` and build script handle this automatically
-5. After deploying, use the **production URL** (e.g. `https://ai-job-agent-2-0.pages.dev`) — preview URLs have different origins and will be blocked by CORS
+---
 
-> **Note:** If you add preview/branch deployment URLs, add them to `FRONTEND_URL` on Railway as comma-separated values: `https://ai-job-agent-2-0.pages.dev,https://preview-url.pages.dev`
+## Security
+
+- Supabase service role key is backend-only — never sent to the client
+- All DB queries scoped by `user_id` with Row Level Security enforced at the database level
+- JWT tokens verified server-side on every request via `supabase.auth.getUser()`
+- Auth tokens refreshed before use to prevent stale 401s
+- CORS locked to known origins in production
+- Rate limiting on all `/api` routes
+- `.env` files are git-ignored
 
 ---
 
@@ -241,4 +257,5 @@ npm run dev
 
 **Muhammad Hassan Khan**
 
-GitHub: [hassan2163](https://github.com/hassan2163)
+[![GitHub](https://img.shields.io/badge/GitHub-hassan2163-181717?style=flat-square&logo=github)](https://github.com/hassan2163)
+[![Live Project](https://img.shields.io/badge/Live-JobFit%20AI-blue?style=flat-square)](https://ai-job-agent-2-0.pages.dev)
