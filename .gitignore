@@ -49,6 +49,9 @@ coverage/
 # Uploads / generated files if any
 uploads/
 generated/
+
+# Session handoff notes (local only)
+HANDOFF.md
 # Frontend
 Frontend/Career Navigator/node_modules/
 Frontend/Career Navigator/dist/
