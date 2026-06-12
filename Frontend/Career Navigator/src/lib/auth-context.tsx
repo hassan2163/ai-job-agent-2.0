@@ -2,6 +2,10 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { Session, User } from "@supabase/supabase-js";
 import { supabase } from "./supabase";
 
+const INACTIVITY_LIMIT_MS = 30 * 60 * 1000; // 30 minutes
+const LAST_ACTIVITY_KEY = "jobfit_last_activity";
+const ACTIVITY_EVENTS = ["mousedown", "keydown", "scroll", "touchstart"];
+
 interface AuthContextValue {
   session: Session | null;
   user: User | null;
@@ -38,7 +42,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Auto sign-out after a period of inactivity. The timestamp lives in
+  // localStorage so activity in any tab keeps all tabs signed in, and a
+  // stale tab opened after the limit signs out immediately.
+  const hasSession = !!session;
+  useEffect(() => {
+    if (!hasSession) return;
+
+    const recordActivity = () => {
+      localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
+    };
+
+    const checkInactivity = () => {
+      const last = Number(localStorage.getItem(LAST_ACTIVITY_KEY) ?? Date.now());
+      if (Date.now() - last >= INACTIVITY_LIMIT_MS) {
+        supabase.auth.signOut();
+      }
+    };
+
+    recordActivity();
+    ACTIVITY_EVENTS.forEach((event) => window.addEventListener(event, recordActivity));
+    document.addEventListener("visibilitychange", checkInactivity);
+    const interval = setInterval(checkInactivity, 60 * 1000);
+
+    return () => {
+      ACTIVITY_EVENTS.forEach((event) => window.removeEventListener(event, recordActivity));
+      document.removeEventListener("visibilitychange", checkInactivity);
+      clearInterval(interval);
+    };
+  }, [hasSession]);
+
   const signOut = async () => {
+    localStorage.removeItem(LAST_ACTIVITY_KEY);
     await supabase.auth.signOut();
   };
 
