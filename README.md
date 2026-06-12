@@ -6,6 +6,14 @@ A full-stack, multi-user SaaS platform that automates the entire job application
 
 ---
 
+## The Problem
+
+Job searching at scale is repetitive and time-consuming: manually checking LinkedIn, Indeed, and Glassdoor for new postings, reading each description to judge fit, and rewriting your resume and cover letter for every application — often for dozens of jobs a week. Most candidates either burn hours on this grind or send the same generic resume everywhere, which hurts both ATS match rates and response rates.
+
+**JobFit AI removes that grind.** It surfaces fresh, relevant postings daily, scores each one against your real resume so you only spend time on jobs worth pursuing, and generates a tailored, ATS-optimized resume and cover letter per job — so you can review and apply in minutes instead of hours.
+
+---
+
 ## How It Works
 
 1. **Set up your profile** — paste your resume, add target roles and locations, set a minimum match score
