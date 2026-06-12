@@ -2,6 +2,8 @@
 
 A full-stack, multi-user SaaS platform that automates the entire job application pipeline — from scraping live job listings to generating AI-tailored resumes and cover letters, ready to download and apply.
 
+**Live demo:** https://ai-job-agent-2-0.pages.dev
+
 ---
 
 ## How It Works
